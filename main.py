@@ -4,24 +4,27 @@ import cv2 as cv
 import numpy as np
 import matplotlib as plt
 import pandas as pd
-import Objects
 
 
-BLACK = [0, 0, 0]
-WHITE = [255, 255, 255]
-BLUE = [255, 0, 0]
-GREEN = [0, 255, 0]
-NOTHING = [100, 120, 130]
+COLORS = {
+    'black': [0, 0, 0],
+    'white': [255, 255, 255],
+    'blue': [255, 0, 0],
+    'green': [0, 255, 0],
+    'brown': [100, 120, 130],
+    'red': [0, 255, 0]
+}
 
 
 def random_selector(list_of_objects):
     chosen = random.randint(0, len(list_of_objects) - 1)
+    #  choosing color -> need to be added
     return cv.imread(list_of_objects[chosen])
 
 
 def background_creator(shape, color):
     background = np.zeros((shape[0], shape[1], 3), np.uint8)
-    changing_color(BLACK, color, background)
+    changing_color(COLORS['black'], color, background)
     return background
 
 
@@ -31,22 +34,23 @@ def changing_color(current_color, new_color, image):
 
 
 def add_avatar_part(current_avatar, added_object):
-    test = np.any(added_object != BLACK, axis=-1)
-    current_avatar[test] = added_object[test]
+    mask = np.any(added_object != COLORS['black'], axis=-1)
+    current_avatar[mask] = added_object[mask]
     return current_avatar
 
 
 def draw_figure():
-    background = background_creator([300, 300], NOTHING)
+    avatar = background_creator([300, 300], COLORS['brown'])
     direction_order = glob.glob('./images/*')
     direction_order.sort(key=lambda x: int(x.split('/')[-1].split('-')[0]))
     for single in direction_order:
         img = random_selector(glob.glob(single + '/*'))
-        background = add_avatar_part(background, img)
+        avatar = add_avatar_part(avatar, img)
 
-    cv.imshow("image", background)
+    cv.imshow("image", avatar)
     cv.waitKey(0)
+    return avatar
 
 
 if __name__ == '__main__':
-    draw_figure()
+    avatar = draw_figure()
